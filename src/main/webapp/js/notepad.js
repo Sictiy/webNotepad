@@ -1,5 +1,7 @@
 var username = getUrlQueryString('tag');
+var domain = window.location.host;
 let isNew = true;
+
 if (username == null)
 {
     username = randomString(5);
@@ -32,7 +34,7 @@ $(function() {
 //判断当前浏览器是否支持WebSocket
 
 if ('WebSocket' in window) {
-    websocket = new WebSocket('ws://localhost:8080/webNotepad/' + username);
+    websocket = new WebSocket('ws://' + domain + '/webNotepad/' + username);
 }
 else {
     alert('Current Browser Not Support Websocket!')
