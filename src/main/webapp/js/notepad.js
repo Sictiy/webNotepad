@@ -1,16 +1,18 @@
-var username = getUrlQueryString('tag');
-var domain = window.location.host;
+let tag = getTag();
+let domain = window.location.host;
+let wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 let isNew = true;
+let hasInit = -2;
 
-if (username == null)
+if (tag == null)
 {
-    username = randomString(5);
-    window.location.href = "?tag="+username;
+    tag = randomString(5);
+    window.location.href = "?tag="+tag;
     exit(0);
 }
 
-var editor;
-var websocket;
+let editor;
+let websocket;
 $(function() {
     // $.get('/md/test.md', function (md) {
     // });
@@ -34,7 +36,7 @@ $(function() {
 //判断当前浏览器是否支持WebSocket
 
 if ('WebSocket' in window) {
-    websocket = new WebSocket('ws://' + domain + '/webNotepad/' + username);
+    websocket = new WebSocket(wsProtocol + '//' + domain + '/webNotepad/' + tag);
 }
 else {
     alert('Current Browser Not Support Websocket!')
@@ -47,11 +49,13 @@ websocket.onerror = function () {
 //连接成功建立的回调方法
 websocket.onopen = function () {
     setMessageLog("Connect Successful!");
+    hasInit++;
+    init();
 };
 
 //接收到消息的回调方法
 websocket.onmessage = function (event) {
-    var obj = JSON.parse(event.data);
+    let obj = JSON.parse(event.data);
     if (obj.type === 0){
         // setMessageLog(obj.msg);
         setMessageLog('Saved!')
@@ -71,7 +75,8 @@ window.onbeforeunload = function () {
 };
 
 window.onload = function() {
-    reqDoc();
+    hasInit++;
+    init();
 };
 
 //将消息显示在网页上
@@ -93,8 +98,8 @@ function closeWebSocket() {
 
 //发送消息
 function send() {
-    // var message = document.getElementById('text').value;
-    var message = editor.getValue();
+    // let message = document.getElementById('text').value;
+    let message = editor.getValue();
     websocket.send(message);
 }
 
@@ -103,23 +108,34 @@ function sendMessage(msg) {
     sendJson(0, msg);
 }
 
-function reqDoc() {
+function init() {
+    if (hasInit < 0){
+        return
+    }
     sendJson(1, '');
 }
 
 function sendJson(type, msg) {
-    var params = {};
+    let params = {};
     params['type'] = type;
     params['msg'] = msg;
     websocket.send(JSON.stringify(params))
+}
+
+function getTag() {
+    let tagTemp  = window.location.pathname.substr(1);
+    if (tagTemp == null || tagTemp === ''){
+        return getUrlQueryString('tag');
+    }
+    return tagTemp;
 }
 
 function getUrlQueryString(names, urls) {
     urls = urls || window.location.href;
     urls && urls.indexOf("?") > -1 ? urls = urls
         .substring(urls.indexOf("?") + 1) : "";
-    var reg = new RegExp("(^|&)" + names + "=([^&]*)(&|$)", "i");
-    var r = urls ? urls.match(reg) : window.location.search.substr(1)
+    let reg = new RegExp("(^|&)" + names + "=([^&]*)(&|$)", "i");
+    let r = urls ? urls.match(reg) : window.location.search.substr(1)
         .match(reg);
     if (r != null && r[2] != "")
         return unescape(r[2]);
@@ -128,9 +144,9 @@ function getUrlQueryString(names, urls) {
 
 function randomString(len) {
     len = len || 32;
-    var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';    /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
-    var maxPos = $chars.length;
-    var pwd = '';
+    let $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';    /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
+    let maxPos = $chars.length;
+    let pwd = '';
     for (i = 0; i < len; i++) {
         pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
     }

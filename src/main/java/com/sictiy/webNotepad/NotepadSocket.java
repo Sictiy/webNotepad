@@ -45,16 +45,21 @@ public class NotepadSocket
     {
         if (MD_PATH == null)
         {
-            String resource = NotepadSocket.class.getResource("/").getPath();
-            int lastFirst;
-            for (int i = 0; i < 3; i++)
-            {
-                lastFirst = resource.lastIndexOf('/');
-                resource = resource.substring(0, lastFirst);
-            }
-            MD_PATH = resource + "/md/";
+            MD_PATH = getWebPath() + "/md/";
         }
         return MD_PATH;
+    }
+
+    public static String getWebPath()
+    {
+        String resource = NotepadSocket.class.getResource("/").getPath();
+        int lastFirst;
+        for (int i = 0; i < 3; i++)
+        {
+            lastFirst = resource.lastIndexOf('/');
+            resource = resource.substring(0, lastFirst);
+        }
+        return resource;
     }
 
     /**

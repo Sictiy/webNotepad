@@ -71,7 +71,7 @@
 
     <!--指定logger的设置，additivity指示是否遵循缺省的继承机制 -->
     <logger name="test.log4j.test8.UseLog4j_" additivity="false">
-        <level value="WARN"/>
+        <level value="INFO"/>
         <appender-ref ref="RollingFileAppender"/>
     </logger>
 
